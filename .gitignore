@@ -129,6 +129,6 @@ dmypy.json
 .pyre/
 
 # gis files
-.tif
-.xml
-.shp
+*.tif
+*.xml
+*.shp
