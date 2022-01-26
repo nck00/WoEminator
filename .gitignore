@@ -132,3 +132,5 @@ dmypy.json
 *.tif
 *.xml
 *.shp
+
+.vs/
