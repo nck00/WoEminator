@@ -10,7 +10,6 @@ def getRandomArrays(inputArray: np.ndarray, count: int, percent=80, seed=42, noD
     """
     values = np.unique(inputArray)
     if noData in values: # We don't care about noData
-        print("!")
         values = values[values != noData]
     if 0 in values: # We only shuffle the landslides
         values = values[values != 0]

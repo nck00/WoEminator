@@ -134,3 +134,4 @@ dmypy.json
 *.shp
 
 .vs/
+testdata/

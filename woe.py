@@ -83,7 +83,7 @@ class WoE:
         return np.count_nonzero(rasterArray != noData)
 
     def getClassValues(self, rasterArray: np.ndarray, noData) -> np.ndarray:
-        """Returns the"""
+        """Returns a numpy array with unique values in rasterArray, discarding noData"""
         classValues = np.unique(rasterArray)
         # we dont care about noData
         if noData in classValues:
@@ -123,7 +123,7 @@ class WoE:
 
     def getResultsTableWoE(self, classArrayCount: int) -> np.ndarray:
         """Returns a Numpy Array, to be filled with the calculation results.
-        The size of the of the array is based on the number of classes in the input Layer
+        The size of the of the array is based on the number of classes in the input Layer.
         """
         return np.zeros(
             shape=(classArrayCount,),
@@ -192,7 +192,7 @@ class WoE:
 
     def getClassNegativeVariance(self, lsOutClassCount: int, stableOutClassCount: int) -> float:
         """Returns the Variance of the positive Weight.
-        σ²(W⁻) = 1 / (Class ∩ Landslide) + 1 / (Class ∩ no Landslide)
+        σ²(W⁻) = 1 / (not Class ∩ Landslide) + 1 / (not Class ∩ no Landslide)
         """
         return 1 / lsOutClassCount + 1 / stableOutClassCount
 
@@ -235,8 +235,8 @@ if __name__ == "__main__":
     rasterArray = toArray.raster2Array("testdata/Geology.tif")
     trainList, valList = randomize.getRandomArrays(lsArray, 100)
     trainReadyForCalc = [*map(arrayWork.readyArray4calc, trainList)]
-    # for train in trainReadyForCalc:
-        # WoEr = WoE(rasterArray, train, -9999)
+    for train in trainReadyForCalc:
+        WoEr = WoE(rasterArray, train, -9999)
         # print(WoEr.resultsTable["classWeight"])
     t2 = time.perf_counter()
     print(t2 - t1)
