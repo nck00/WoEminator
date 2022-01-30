@@ -231,12 +231,14 @@ if __name__ == "__main__":
     import randomize
     import arrayWork
     t1 = time.perf_counter()
-    lsArray = toArray.vector2Array("testdata/landslides.shp", "testdata/AW3D30.tif", "number")
-    rasterArray = toArray.raster2Array("testdata/Geology.tif")
-    trainList, valList = randomize.getRandomArrays(lsArray, 100)
+    lsArray = toArray.vector2Array("testdata/lsatcomp/inventory_training.shp", "testdata/lsatcomp/AW3D30.tif", "number")
+    print(lsArray.max())
+    rasterArray = toArray.raster2Array("testdata/lsatcomp/geology.tif")
+    trainList, valList = randomize.getRandomArrays(lsArray, 1, 100)
     trainReadyForCalc = [*map(arrayWork.readyArray4calc, trainList)]
+    print(trainReadyForCalc[0].all() == lsArray.all())
     for train in trainReadyForCalc:
         WoEr = WoE(rasterArray, train, -9999)
-        # print(WoEr.resultsTable["classWeight"])
+        print(WoEr.resultsTable["classWeight"])
     t2 = time.perf_counter()
     print(t2 - t1)

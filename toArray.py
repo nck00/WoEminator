@@ -10,7 +10,6 @@ def vector2Array(vectorPath: str, maskRasterPath: str, burnField: str, noData=-9
     raster (Array has to be rectangular).
     First we create a temporary Raster in memory and then return its Array.
     """
-    # TODO individual values for each Poly atm only 1 for all (Use FAT Value/Nr from 1 to n)
     maskHandle = gdal.Open(maskRasterPath, gdal.GA_ReadOnly)
     vector = ogr.Open(vectorPath)
     vectorLayer = vector.GetLayer()
@@ -25,7 +24,8 @@ def vector2Array(vectorPath: str, maskRasterPath: str, burnField: str, noData=-9
     tmpRaster.SetGeoTransform((xMin, xSize, 0, yMax, 0, ySize))
     band = tmpRaster.GetRasterBand(1)
     band.SetNoDataValue(noData)
-    gdal.RasterizeLayer(tmpRaster, [1], vectorLayer, options = [f"ATTRIBUTE={burnField}", "outputType=gdal.GDT_Int16", "ALL_TOUCHED=TRUE"])
+    # gdal.RasterizeLayer(tmpRaster, [1], vectorLayer, options = [f"ATTRIBUTE={burnField}", "outputType=gdal.GDT_Int16", "ALL_TOUCHED=TRUE"])
+    gdal.RasterizeLayer(tmpRaster, [1], vectorLayer, options = [f"ATTRIBUTE={burnField}"])
     return band.ReadAsArray()
 
 def raster2Array(rasterPath: str, bandNr=1) -> np.ndarray:
