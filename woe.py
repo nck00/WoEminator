@@ -166,8 +166,10 @@ class WoE:
         P(Class | Landslide): P (Class ∩ Landslide) / P(Landslide)
         P(Class | no Landslide): P (Class ∩ no Landslide) / P(no Landslide)
         """
-        # TODO: Handle 0 values
-        return math.log((lsClassCount / lsTotalCount) / (stableClassCount / totalStableCount))
+        if lsClassCount:
+            return math.log((lsClassCount / lsTotalCount) / (stableClassCount / totalStableCount))
+        else: # no landslides in class
+            return 0
 
     def getNegativeWeight(
         self,
@@ -181,14 +183,16 @@ class WoE:
         P(not Class | Landslide): P (not Class ∩ Landslide) / P(Landslide)
         P(not Class | no Landslide): P (not Class ∩ no Landslide) / P(no Landslide)
         """
-        # TODO: Handle 0 values
         return math.log((lsOutClassCount / lsTotalCount) / (stableOutClassCount / totalStableCount))
 
     def getClassPositiveVariance(self, lsClassCount: int, stableClassCount: int) -> float:
         """Returns the Variance of the positive Weight.
         σ²(W⁺) = 1 / (Class ∩ Landslide) + 1 / (Class ∩ no Landslide)
         """
-        return 1 / lsClassCount + 1 / stableClassCount
+        if lsClassCount:
+            return 1 / lsClassCount + 1 / stableClassCount
+        else: # no landslides in class
+            return 0
 
     def getClassNegativeVariance(self, lsOutClassCount: int, stableOutClassCount: int) -> float:
         """Returns the Variance of the positive Weight.
@@ -232,7 +236,6 @@ if __name__ == "__main__":
     import arrayWork
     t1 = time.perf_counter()
     lsArray = toArray.vector2Array("testdata/lsatcomp/inventory_training.shp", "testdata/lsatcomp/AW3D30.tif", "number")
-    print(lsArray.max())
     rasterArray = toArray.raster2Array("testdata/lsatcomp/geology.tif")
     trainList, valList = randomize.getRandomArrays(lsArray, 1, 100)
     trainReadyForCalc = [*map(arrayWork.readyArray4calc, trainList)]
