@@ -5,8 +5,6 @@ class WoE:
     """After calling WoE(raster, landslides, noData) WoE.resultsTable contains the results of the
     calculation (see getResultsTableWoE).
     """
-    # TODO simplify some function calls e.g. Variance
-    # TODO check heatmap
     def __init__(self, rasterArray: np.ndarray, lsArray: np.ndarray, noData=-9999):
         lsTotalCount = self.getLandslideTotalCount(lsArray, noData, 0)  # 0 = noLandslideValue
         totalCount = self.getTotalCount(rasterArray, noData)
