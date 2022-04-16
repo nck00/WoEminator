@@ -233,8 +233,8 @@ if __name__ == "__main__":
     import randomize
     import arrayWork
     t1 = time.perf_counter()
-    lsArray = toArray.vector2Array("testdata/lsatcomp/inventory_training.shp", "testdata/lsatcomp/AW3D30.tif", "number")
-    rasterArray = toArray.raster2Array("testdata/lsatcomp/geology.tif")
+    lsArray = toArray.vector2Array("testdata/landslides.shp", "testdata/AW3D30.tif", "number")
+    rasterArray = toArray.raster2Array("testdata/geology.tif")
     trainList, valList = randomize.getRandomArrays(lsArray, 1, 100)
     trainReadyForCalc = [*map(arrayWork.readyArray4calc, trainList)]
     print(trainReadyForCalc[0].all() == lsArray.all())
