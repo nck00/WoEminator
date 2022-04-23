@@ -1,23 +1,24 @@
 import math
 import numpy as np
+from sharedCalcFunctions import *
 
 class WoE:
     """After calling WoE(raster, landslides, noData) WoE.resultsTable contains the results of the
     calculation (see getResultsTableWoE).
     """
     def __init__(self, rasterArray: np.ndarray, lsArray: np.ndarray, noData=-9999):
-        lsTotalCount = self.getLandslideTotalCount(lsArray, noData, 0)  # 0 = noLandslideValue
-        totalCount = self.getTotalCount(rasterArray, noData)
+        lsTotalCount = getLandslideTotalCount(lsArray, noData, 0)  # 0 = noLandslideValue
+        totalCount = getTotalCount(rasterArray, noData)
         totalStableCount = totalCount - lsTotalCount
-        classValues = self.getClassValues(rasterArray, noData)
-        classArrayList, trueValue = self.getClassArrayListAndTrueValue(
+        classValues = getClassValues(rasterArray, noData)
+        classArrayList, trueValue = getClassArrayListAndTrueValue(
             rasterArray, classValues, noData
         )
         self.resultsTable = self.getResultsTableWoE(len(classArrayList))
         for i, classArray in enumerate(classArrayList):
             self.resultsTable["classValue"][i] = classValues[i]
-            self.resultsTable["classCount"][i] = self.getClassCount(classArray, trueValue)
-            self.resultsTable["lsClassCount"][i] = self.getLandslideClassCount(
+            self.resultsTable["classCount"][i] = getClassCount(classArray, trueValue)
+            self.resultsTable["lsClassCount"][i] = getLandslideClassCount(
                 lsArray, classArray, trueValue
             )
             self.resultsTable["stableClassCount"][i] = (
@@ -67,58 +68,6 @@ class WoE:
                 self.resultsTable["classNegativeVariance"][i],
             )
 
-    def getLandslideTotalCount(self, lsArray: np.ndarray, noData: int, nols: int) -> int:
-        """Returns the total amount of landslidepixels.
-        Gets called by init
-        Expects everything besides nols and noData to be a landslide pixel.
-        """
-        return ((lsArray != noData) & (lsArray != nols)).sum()
-
-    def getTotalCount(self, rasterArray, noData: int) -> int:
-        """Returns the total amount of pixel in raster excluding noData.
-        Gets called by init.
-        """
-        return np.count_nonzero(rasterArray != noData)
-
-    def getClassValues(self, rasterArray: np.ndarray, noData) -> np.ndarray:
-        """Returns a numpy array with unique values in rasterArray, discarding noData"""
-        classValues = np.unique(rasterArray)
-        # we dont care about noData
-        if noData in classValues:
-            classValues = classValues[classValues != noData]
-        return classValues
-
-    def getClassArrayListAndTrueValue(self, rasterArray, classValues: list, noData=-9999) -> tuple:
-        """
-        Returns a tuple: 1. list with n arrays for n unique values in rasterArray and the trueValue.
-        The return arrays will have trueValue where the class is present, falseValue elsewhere and
-        -9999 for noData.
-        By returning the trueValue we can use it later and not array.max() saving time.
-        """
-        classArrayList = list()
-        trueValue, falseValue = self._getBoolValues(classValues)
-        for classValue in classValues:
-            classArray = rasterArray.copy()
-            classArray[classArray == classValue] = trueValue
-            classArray[classArray == noData] = -9999
-            classArray[(classArray != -9999) & (classArray != trueValue)] = falseValue
-            classArrayList.append(classArray)
-        return (classArrayList, trueValue)
-
-    def _getBoolValues(self, values: np.ndarray) -> tuple:
-        """Returns a tuple of two integers representing presence and absence of a class.
-        Gets called by getClassArrayList.
-        If 1 and 0 is not in values we use 1 to indicate the presence of a specific class else use
-        max + 1. If 0 and 1 not in values we use 0 to indicate lack of the class, else use min - 1.
-        """
-        if 1 not in values and 0 not in values:
-            trueValue = 1
-            falseValue = 0
-        else:
-            trueValue = int(values.max()) + 1
-            falseValue = int(values.min()) - 1
-        return (trueValue, falseValue)
-
     def getResultsTableWoE(self, classArrayCount: int) -> np.ndarray:
         """Returns a Numpy Array, to be filled with the calculation results.
         The size of the of the array is based on the number of classes in the input Layer.
@@ -141,16 +90,6 @@ class WoE:
                 ("classVariance", "f"),
             ],
         )
-
-    def getClassCount(self, classArray, trueValue: int) -> int:
-        """Returns the amount of pixels in a classArray that are inside the class.
-        Gets called by init.
-        """
-        return np.count_nonzero(classArray == trueValue)
-
-    def getLandslideClassCount(self, lsArray, classArray, trueValue: int) -> int:
-        """Returns the amount of pixels with landslide inside the class."""
-        return (np.logical_and(lsArray == 1, classArray == trueValue)).sum()
 
     def getPositiveWeight(
         self,
