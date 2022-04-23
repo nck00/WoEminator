@@ -30,7 +30,7 @@ def getClassArrayListAndTrueValue(rasterArray, classValues: list, noData=-9999) 
     -9999 for noData.
     By returning the trueValue we can use it later and not array.max() saving time.
     """
-    classArrayList = list()
+    classArrayList = []
     trueValue, falseValue = _getBoolValues(classValues)
     for classValue in classValues:
         classArray = rasterArray.copy()
