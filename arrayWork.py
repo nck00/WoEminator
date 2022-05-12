@@ -7,6 +7,23 @@ def readyArray4calc(inputArray: np.ndarray) -> np.ndarray:
     inputArray[inputArray >= 1] = 1 # We expect each value > 1 to be a landslide
     return inputArray
 
+def fillArrayWithRandomNoDataUntilPercent(inputArray: np.ndarray, landslide = 1, noLandslide = 0, percent = 30, noData = -9999) -> np.ndarray:
+    """Returns a modified inputArray where noLandslide values are randomly replaced with noData
+    until landslide values make up percent % of all elements in inputArray if the percentage of
+    landslides is too low, else it randomly replaces landslides with noData until percent % of all
+    elements in inputArray are landslide"""
+    lsCount = np.count_nonzero(inputArray == landslide)
+    nonLsCount = np.count_nonzero(inputArray == noLandslide)
+    lsPercent = 100 / (lsCount + nonLsCount) * lsCount
+    percentDifference = percent - lsPercent
+    elementCountToModify = (lsCount + nonLsCount) * abs(percentDifference) / 100
+    if percentDifference < 0: # too many landslides
+        pass
+    elif percentDifference > 0: # too few landslides
+        print(f"{elementCountToModify = }")
+    else:
+        return inputArray
+
 if __name__ == "__main__":
     import timeit
     import randomize
