@@ -11,22 +11,36 @@ def fillArrayWithRandomNoDataUntilPercent(inputArray: np.ndarray, landslide = 1,
     """Returns a modified inputArray where noLandslide values are randomly replaced with noData
     until landslide values make up percent % of all elements in inputArray if the percentage of
     landslides is too low, else it randomly replaces landslides with noData until percent % of all
-    elements in inputArray are landslide"""
+    elements in inputArray are landslides"""
     lsCount = np.count_nonzero(inputArray == landslide)
+    print(f"{lsCount = }")
     nonLsCount = np.count_nonzero(inputArray == noLandslide)
+    print(f"{nonLsCount = }")
+    noDataCount = np.count_nonzero(inputArray == noData)
+    print(f"{noDataCount = }")
     lsPercent = 100 / (lsCount + nonLsCount) * lsCount
+    print(f"{lsPercent = }")
     percentDifference = percent - lsPercent
-    elementCountToModify = int((lsCount + nonLsCount) * abs(percentDifference) / 100)
-    rowCount, colCount = inputArray.shape
-    rowCount -= 1 # starts at 0
-    colCount -= 1
-    np.random.seed(seed)
-    if percentDifference < 0: # too many landslides -> add noData for landslide
-        pass
-    elif percentDifference > 0: # too few landslides  -> add noData for noLandslide
-        
-    else: # precision landing
+    print(f"{percentDifference = }")
+    if percentDifference == 0:
         return inputArray
+    elif percentDifference < 0: # too many landslides -> add noData for landslide
+        toReplace = landslide
+        elementCountToModify = abs(lsCount - int(lsCount / (percent / 100 )) + nonLsCount)
+    elif percentDifference > 0: # too few landslides  -> add noData for noLandslide
+        toReplace = noLandslide
+        elementCountToModify = abs(lsCount - int(lsCount / (percent / 100 )) + nonLsCount)
+    print(f"{toReplace = }")
+    print(f"{elementCountToModify = }")
+    rowCount, colCount = inputArray.shape
+    np.random.seed(seed)
+    while elementCountToModify:
+        row = np.random.randint(0, rowCount)
+        col = np.random.randint(0, colCount)
+        if inputArray[row][col] == toReplace:
+            inputArray[row][col] = noData
+            elementCountToModify -= 1
+    return inputArray
 
 if __name__ == "__main__":
     import timeit
