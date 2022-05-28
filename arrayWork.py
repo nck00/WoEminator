@@ -13,25 +13,18 @@ def fillArrayWithRandomNoDataUntilPercent(inputArray: np.ndarray, landslide = 1,
     landslides is too low, else it randomly replaces landslides with noData until percent % of all
     elements in inputArray are landslides"""
     lsCount = np.count_nonzero(inputArray == landslide)
-    print(f"{lsCount = }")
     nonLsCount = np.count_nonzero(inputArray == noLandslide)
-    print(f"{nonLsCount = }")
     noDataCount = np.count_nonzero(inputArray == noData)
-    print(f"{noDataCount = }")
     lsPercent = 100 / (lsCount + nonLsCount) * lsCount
-    print(f"{lsPercent = }")
     percentDifference = percent - lsPercent
-    print(f"{percentDifference = }")
     if percentDifference == 0:
         return inputArray
     elif percentDifference < 0: # too many landslides -> add noData for landslide
         toReplace = landslide
-        elementCountToModify = abs(lsCount - int(lsCount / (percent / 100 )) + nonLsCount)
+        elementCountToModify = abs(nonLsCount - int(nonLsCount / ((100-percent) / 100 )) + lsCount)
     elif percentDifference > 0: # too few landslides  -> add noData for noLandslide
         toReplace = noLandslide
         elementCountToModify = abs(lsCount - int(lsCount / (percent / 100 )) + nonLsCount)
-    print(f"{toReplace = }")
-    print(f"{elementCountToModify = }")
     rowCount, colCount = inputArray.shape
     np.random.seed(seed)
     while elementCountToModify:
