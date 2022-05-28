@@ -14,10 +14,9 @@ def fillArrayWithRandomNoDataUntilPercent(inputArray: np.ndarray, landslide = 1,
     elements in inputArray are landslides"""
     lsCount = np.count_nonzero(inputArray == landslide)
     nonLsCount = np.count_nonzero(inputArray == noLandslide)
-    noDataCount = np.count_nonzero(inputArray == noData)
     lsPercent = 100 / (lsCount + nonLsCount) * lsCount
     percentDifference = percent - lsPercent
-    if percentDifference == 0:
+    if percentDifference == 0: # precision landing
         return inputArray
     elif percentDifference < 0: # too many landslides -> add noData for landslide
         toReplace = landslide
