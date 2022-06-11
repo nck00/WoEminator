@@ -34,6 +34,29 @@ def fillArrayWithRandomNoDataUntilPercent(inputArray: np.ndarray, landslide = 1,
             elementCountToModify -= 1
     return inputArray
 
+def fillWithNoDataKeepingValueDistribution(inputArray: np.ndarray, percent = 20, noData = -9999, seed = 42) -> np.ndarray:
+    """Returns a modified inputArray where percent of all values in it are filled with noData, while
+    keeping the original percentage distribution of the values. It will keep atleast one of each
+    value in inputArray in the returned array.
+    """
+    values, counts = np.unique(inputArray, return_counts = True)
+    if noData in values: # we don't care about noData
+        index = np.where(values == noData)
+        values = values[values != noData]
+        counts = np.delete(counts, index)
+    afterCounts = (counts * percent/100).astype("int")
+    afterCounts[afterCounts == 0] = 1
+    toReplace = counts - afterCounts
+    indices = []
+    for value in values:
+        indice = np.where(inputArray == value)
+        indices.append(indice) # indice[n][0] = x array; indice[n][1] = y array
+    np.random.seed(seed)
+    for i, value in enumerate(values):
+        for replace in range(toReplace[i]):
+            x = np.random.choice(indices[i])
+            y = indices[0][1][np.where(x == indices[0][0])]
+    
 if __name__ == "__main__":
     import timeit
     import randomize
