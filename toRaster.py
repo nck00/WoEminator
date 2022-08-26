@@ -4,7 +4,11 @@ from osgeo import gdal
 
 def array2Raster(array: np.ndarray, maskRasterPath: str, outRasterPath: str, noData=-9999,
                  gdalType=gdal.GDT_Float32) -> str:
-    """Returns true if the raster file was correctly written to outPath."""
+    """Returns outRasterPath, the path to the new .tif file.
+    array is the numpy array you want to save as a .tif file
+    maskRasterPath is an existing .tif file from which we take spatial information
+    noData is the value in array that we treat as no Data in the resulting .tif file
+    gdalType is the GDAL pixel data type to use for the resulting .tif"""
     maskRaster = gdal.Open(maskRasterPath)
     outRaster = gdal.GetDriverByName("Gtiff").Create(outRasterPath, maskRaster.RasterXSize, maskRaster.RasterYSize, 1,
                                                      gdalType)
