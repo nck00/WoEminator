@@ -36,7 +36,7 @@ def fillArrayWithRandomNoDataUntilPercent(inputArray: np.ndarray, landslide = 1,
 
 def fillWithNoDataKeepingValueDistribution(inputArray: np.ndarray, percent = 20, noData = -9999, seed = 42) -> np.ndarray:
     """Returns a modified inputArray where percent of all values in it are filled with noData, while
-    keeping the original percentage distribution of the values. It will keep atleast one of each
+    keeping the original percentage distribution of the values. It will keep at least one of each
     value in inputArray in the returned array.
     """
     values, counts = np.unique(inputArray, return_counts = True)
@@ -56,7 +56,24 @@ def fillWithNoDataKeepingValueDistribution(inputArray: np.ndarray, percent = 20,
         for replace in range(toReplace[i]):
             x = np.random.choice(indices[i])
             y = indices[0][1][np.where(x == indices[0][0])]
-    
+
+def replaceValuesInArray(inputArray: np.ndarray, toReplace: np.ndarray, replacement: np.ndarray, changeType = True) -> np.ndarray:
+    """
+    Returns an array where values in toReplace are replaced with values in replacement with the same index in
+    inputArray.
+    If a values is not in toReplace they will not be modified.
+    By default, it will change the inputArray type to match the replacement type. You can change that by setting
+    changeType to False.
+    """
+    if changeType and inputArray.dtype != replacement.dtype:
+        array = inputArray.astype(replacement.dtype)
+    else:
+        array = inputArray
+    for i, toReplaceValue in enumerate(toReplace):
+        array[array == toReplaceValue] = replacement[i]
+    return array
+
+
 if __name__ == "__main__":
     import timeit
     import randomize
