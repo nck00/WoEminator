@@ -36,8 +36,8 @@ def fillArrayWithRandomNoDataUntilPercent(inputArray: np.ndarray, landslide = 1,
 
 def fillWithNoDataKeepingValueDistribution(inputArray: np.ndarray, percent = 20, noData = -9999, seed = 42) -> np.ndarray:
     """Returns a modified inputArray where percent of all values in it are filled with noData, while
-    keeping the original percentage distribution of the values. It will keep at least one of each
-    value in inputArray in the returned array.
+    keeping the original percentage distribution of the values or very close to it. It will keep at
+    least one of each value in inputArray in the returned array.
     """
     values, counts = np.unique(inputArray, return_counts = True)
     if noData in values: # we don't care about noData
@@ -49,13 +49,19 @@ def fillWithNoDataKeepingValueDistribution(inputArray: np.ndarray, percent = 20,
     toReplace = counts - afterCounts
     indices = []
     for value in values:
+        indiceList = []
         indice = np.where(inputArray == value)
-        indices.append(indice) # indice[n][0] = x array; indice[n][1] = y array
-    np.random.seed(seed)
+        for x, y in zip(indice[0], indice[1]):
+            indiceList.append((x, y))
+        # indice[n][i][0] = x position of the i. occurance of the n. value
+        # indice[n][i][1] = y position of the i. occurance of the n. value
+        indices.append(indiceList)
+    rng = np.random.default_rng(seed)
     for i, value in enumerate(values):
-        for replace in range(toReplace[i]):
-            x = np.random.choice(indices[i])
-            y = indices[0][1][np.where(x == indices[0][0])]
+        positionsToReplace = rng.choice(indices[i], size=toReplace[i], replace=False)
+        for x, y in positionsToReplace:
+            inputArray[x][y] = noData
+    return inputArray
 
 def replaceValuesInArray(inputArray: np.ndarray, toReplace: np.ndarray, replacement: np.ndarray, changeType = True) -> np.ndarray:
     """
