@@ -66,7 +66,7 @@ from woe import WoE
 
 landslides_file = "path_to_vector"
 attribute_to_burn_in = "attribute"
-raster_file = r"path_to_raster"
+raster_file = "path_to_raster"
 output_file = "path_to_output_raster"
 
 raster_array = raster2Array(raster_file)
