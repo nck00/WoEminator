@@ -53,3 +53,35 @@ out_raster_path = "path_to_output_raster"
 out_raster = array2Raster(array, mask_raster_path, out_raster_path)
 ```
 
+## Full WoE Workflow - From gis files to averaged Weights raster
+Uses all default values to create an averaged weights raster out of 50 subsamples of the training array and an input raster file.
+
+```python
+from arrayWork import readyArray4calc, replaceValuesInArray
+import numpy as np
+from randomize import getRandomArrays
+from toArray import raster2Array, vector2Array
+from toRaster import array2Raster
+from woe import WoE
+
+landslides_file = "path_to_vector"
+attribute_to_burn_in = "attribute"
+raster_file = r"path_to_raster"
+output_file = "path_to_output_raster"
+
+raster_array = raster2Array(raster_file)
+ls_array = vector2Array(landslides_file, raster_file, attribute_to_burn_in)
+
+ls_train_arrays, _ = getRandomArrays(ls_array, 50)
+ls_train_arrays = [readyArray4calc(ls_train_array) for ls_train_array in ls_train_arrays]
+
+weights = []
+for ls_train_array in ls_train_arrays:
+    tmp = WoE(raster_array, ls_train_array)
+    weights.append(tmp.resultsTable["classWeight"])
+weights_average = np.array(weights).mean(axis=0)
+
+weights_array = replaceValuesInArray(raster_array, tmp.resultsTable["classValue"], weights_average)
+
+array2Raster(weights_array, raster_file, output_file)
+```
