@@ -11,15 +11,15 @@ class WoE:
         totalCount = getTotalCount(rasterArray, noData)
         totalStableCount = totalCount - lsTotalCount
         classValues = getClassValues(rasterArray, noData)
-        classArrayList, trueValue = getClassArrayListAndTrueValue(
+        classArrayList = getClassArrayList(
             rasterArray, classValues, noData
         )
         self.resultsTable = self.getResultsTableWoE(len(classArrayList))
         for i, classArray in enumerate(classArrayList):
             self.resultsTable["classValue"][i] = classValues[i]
-            self.resultsTable["classCount"][i] = getClassCount(classArray, trueValue)
+            self.resultsTable["classCount"][i] = getClassCount(classArray)
             self.resultsTable["lsClassCount"][i] = getLandslideClassCount(
-                lsArray, classArray, trueValue
+                lsArray, classArray
             )
             self.resultsTable["stableClassCount"][i] = (
                 self.resultsTable["classCount"][i] - self.resultsTable["lsClassCount"][i]
