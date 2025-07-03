@@ -1,4 +1,3 @@
-import math
 import numpy as np
 
 # Basic Functions used by both WoE and FR.

@@ -1,6 +1,5 @@
 from osgeo import gdal, ogr
 import numpy as np
-import time
 
 
 def vector2Array(vectorPath: str, maskRasterPath: str, burnField: str, noData=-9999):
@@ -37,6 +36,8 @@ def raster2Array(rasterPath: str, bandNr=1) -> np.ndarray:
 
 
 if __name__ == "__main__":
+    import time
+
     t1 = time.perf_counter()
     x = vector2Array("testdata/landslides.shp", "testdata/AW3D30.tif", "number")
     t2 = time.perf_counter()
