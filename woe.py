@@ -1,4 +1,3 @@
-import math
 import numpy as np
 from sharedCalcFunctions import *
 
@@ -111,7 +110,7 @@ class WoE:
         P(Class | no Landslide): P (Class ∩ no Landslide) / P(no Landslide)
         """
         if lsClassCount:
-            return math.log(
+            return np.log(
                 (lsClassCount / lsTotalCount) / (stableClassCount / totalStableCount)
             )
         else:  # no landslides in class
@@ -129,7 +128,7 @@ class WoE:
         P(not Class | Landslide): P (not Class ∩ Landslide) / P(Landslide)
         P(not Class | no Landslide): P (not Class ∩ no Landslide) / P(no Landslide)
         """
-        return math.log(
+        return np.log(
             (lsOutClassCount / lsTotalCount) / (stableOutClassCount / totalStableCount)
         )
 
