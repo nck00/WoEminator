@@ -2,27 +2,30 @@ import math
 import numpy as np
 from sharedCalcFunctions import *
 
+
 class WoE:
     """After calling WoE(raster, landslides, noData) WoE.resultsTable contains the results of the
     calculation (see getResultsTableWoE).
     """
+
     def __init__(self, rasterArray: np.ndarray, lsArray: np.ndarray, noData=-9999):
-        lsTotalCount = getLandslideTotalCount(lsArray, noData, 0)  # 0 = noLandslideValue
+        lsTotalCount = getLandslideTotalCount(
+            lsArray, noData, 0
+        )  # 0 = noLandslideValue
         totalCount = getTotalCount(rasterArray, noData)
         totalStableCount = totalCount - lsTotalCount
         classValues = getClassValues(rasterArray, noData)
-        classArrayList = getClassArrayList(
-            rasterArray, classValues, noData
-        )
-        self.resultsTable = self.getResultsTableWoE(len(classArrayList))
-        for i, classArray in enumerate(classArrayList):
-            self.resultsTable["classValue"][i] = classValues[i]
+        self.resultsTable = self.getResultsTableWoE(len(classValues))
+        for i, classValue in enumerate(classValues):
+            classArray = getClassArray(rasterArray, classValue, noData)
+            self.resultsTable["classValue"][i] = classValue
             self.resultsTable["classCount"][i] = getClassCount(classArray)
             self.resultsTable["lsClassCount"][i] = getLandslideClassCount(
                 lsArray, classArray
             )
             self.resultsTable["stableClassCount"][i] = (
-                self.resultsTable["classCount"][i] - self.resultsTable["lsClassCount"][i]
+                self.resultsTable["classCount"][i]
+                - self.resultsTable["lsClassCount"][i]
             )
             self.resultsTable["classPositiveWeight"][i] = self.getPositiveWeight(
                 self.resultsTable["lsClassCount"][i],
@@ -46,17 +49,21 @@ class WoE:
                 self.resultsTable["classPositiveWeight"][i]
                 - self.resultsTable["classNegativeWeight"][i]
             )
-            self.resultsTable["classPositiveVariance"][i] = self.getClassPositiveVariance(
-                self.resultsTable["lsClassCount"][i],
-                self.resultsTable["stableClassCount"][i],
+            self.resultsTable["classPositiveVariance"][i] = (
+                self.getClassPositiveVariance(
+                    self.resultsTable["lsClassCount"][i],
+                    self.resultsTable["stableClassCount"][i],
+                )
             )
-            self.resultsTable["classNegativeVariance"][i] = self.getClassNegativeVariance(
-                self.resultsTable["lsOutClassCount"][i],
-                self.resultsTable["stableOutClassCount"][i],
+            self.resultsTable["classNegativeVariance"][i] = (
+                self.getClassNegativeVariance(
+                    self.resultsTable["lsOutClassCount"][i],
+                    self.resultsTable["stableOutClassCount"][i],
+                )
             )
         totalNegativeWeight = sum(self.resultsTable["classNegativeWeight"])
         totalNegativeVariance = sum(self.resultsTable["classNegativeVariance"])
-        for i in range(len(classArrayList)):
+        for i in range(len(classValues)):
             self.resultsTable["classWeight"][i] = self.getWeight(
                 self.resultsTable["classPositiveWeight"][i],
                 totalNegativeWeight,
@@ -104,8 +111,10 @@ class WoE:
         P(Class | no Landslide): P (Class ∩ no Landslide) / P(no Landslide)
         """
         if lsClassCount:
-            return math.log((lsClassCount / lsTotalCount) / (stableClassCount / totalStableCount))
-        else: # no landslides in class
+            return math.log(
+                (lsClassCount / lsTotalCount) / (stableClassCount / totalStableCount)
+            )
+        else:  # no landslides in class
             return 0
 
     def getNegativeWeight(
@@ -120,18 +129,24 @@ class WoE:
         P(not Class | Landslide): P (not Class ∩ Landslide) / P(Landslide)
         P(not Class | no Landslide): P (not Class ∩ no Landslide) / P(no Landslide)
         """
-        return math.log((lsOutClassCount / lsTotalCount) / (stableOutClassCount / totalStableCount))
+        return math.log(
+            (lsOutClassCount / lsTotalCount) / (stableOutClassCount / totalStableCount)
+        )
 
-    def getClassPositiveVariance(self, lsClassCount: int, stableClassCount: int) -> float:
+    def getClassPositiveVariance(
+        self, lsClassCount: int, stableClassCount: int
+    ) -> float:
         """Returns the Variance of the positive Weight.
         σ²(W⁺) = 1 / (Class ∩ Landslide) + 1 / (Class ∩ no Landslide)
         """
         if lsClassCount:
             return 1 / lsClassCount + 1 / stableClassCount
-        else: # no landslides in class
+        else:  # no landslides in class
             return 0
 
-    def getClassNegativeVariance(self, lsOutClassCount: int, stableOutClassCount: int) -> float:
+    def getClassNegativeVariance(
+        self, lsOutClassCount: int, stableOutClassCount: int
+    ) -> float:
         """Returns the Variance of the positive Weight.
         σ²(W⁻) = 1 / (not Class ∩ Landslide) + 1 / (not Class ∩ no Landslide)
         """
@@ -171,8 +186,11 @@ if __name__ == "__main__":
     import toArray
     import randomize
     import arrayWork
+
     t1 = time.perf_counter()
-    lsArray = toArray.vector2Array("testdata/landslides.shp", "testdata/AW3D30.tif", "number")
+    lsArray = toArray.vector2Array(
+        "testdata/landslides.shp", "testdata/AW3D30.tif", "number"
+    )
     rasterArray = toArray.raster2Array("testdata/geology.tif")
     trainList, valList = randomize.getRandomArrays(lsArray, 1, 100)
     trainReadyForCalc = [*map(arrayWork.readyArray4calc, trainList)]

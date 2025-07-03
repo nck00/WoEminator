@@ -2,27 +2,29 @@ import math
 import numpy as np
 from sharedCalcFunctions import *
 
+
 class FR:
     """After calling FR(raster, landslides, noData) FR.resultsTable contains the results of the
     calculation (see getResultsTableFR).
     """
+
     def __init__(self, rasterArray: np.ndarray, lsArray: np.ndarray, noData=-9999):
-        lsTotalCount = getLandslideTotalCount(lsArray, noData, 0)  # 0 = noLandslideValue
+        lsTotalCount = getLandslideTotalCount(
+            lsArray, noData, 0
+        )  # 0 = noLandslideValue
         totalCount = getTotalCount(rasterArray, noData)
         totalStableCount = totalCount - lsTotalCount
         classValues = getClassValues(rasterArray, noData)
-        classArrayList = getClassArrayList(
-            rasterArray, classValues, noData
-        )
-        self.resultsTable = self.getResultsTableFR(len(classArrayList))
-        for i, classArray in enumerate(classArrayList):
-            self.resultsTable["classValue"][i] = classValues[i]
+        self.resultsTable = self.getResultsTableFR(len(classValues))
+        for i, classValue in enumerate(classValues):
+            classArray = getClassArray(rasterArray, classValue, noData)
             self.resultsTable["classCount"][i] = getClassCount(classArray)
             self.resultsTable["lsClassCount"][i] = getLandslideClassCount(
                 lsArray, classArray
             )
             self.resultsTable["stableClassCount"][i] = (
-                self.resultsTable["classCount"][i] - self.resultsTable["lsClassCount"][i]
+                self.resultsTable["classCount"][i]
+                - self.resultsTable["lsClassCount"][i]
             )
             self.resultsTable["lsOutClassCount"][i] = (
                 lsTotalCount - self.resultsTable["lsClassCount"][i]
@@ -34,7 +36,7 @@ class FR:
                 self.resultsTable["lsClassCount"][i],
                 self.resultsTable["classCount"][i],
                 lsTotalCount,
-                totalCount
+                totalCount,
             )
 
     def getResultsTableFR(self, classArrayCount: int) -> np.ndarray:
@@ -54,7 +56,9 @@ class FR:
             ],
         )
 
-    def getFrequencyRatio(self, lsClassCount: int, classCount: int, lsTotalCount: int, totalCount: int) -> float:
+    def getFrequencyRatio(
+        self, lsClassCount: int, classCount: int, lsTotalCount: int, totalCount: int
+    ) -> float:
         """
         Calculates and returns the Frequncy Ratio for a class of raster.
              Landslide Pixels in Class / Total Pixels in class
@@ -69,8 +73,11 @@ if __name__ == "__main__":
     import toArray
     import randomize
     import arrayWork
+
     t1 = time.perf_counter()
-    lsArray = toArray.vector2Array("testdata/landslides.shp", "testdata/AW3D30.tif", "number")
+    lsArray = toArray.vector2Array(
+        "testdata/landslides.shp", "testdata/AW3D30.tif", "number"
+    )
     rasterArray = toArray.raster2Array("testdata/geology.tif")
     trainList, valList = randomize.getRandomArrays(lsArray, 1, 100)
     trainReadyForCalc = [*map(arrayWork.readyArray4calc, trainList)]

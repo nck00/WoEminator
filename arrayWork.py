@@ -1,13 +1,22 @@
 import numpy as np
 
+
 def readyArray4calc(inputArray: np.ndarray) -> np.ndarray:
     """Returns an array with each element not 0 or noData (-9999) replaced with 1.
     Used to convert the randomized Arrays into a better format for calculation.
     """
-    inputArray[inputArray >= 1] = 1 # We expect each value > 1 to be a landslide
+    inputArray[inputArray >= 1] = 1  # We expect each value > 1 to be a landslide
     return inputArray
 
-def fillArrayWithRandomNoDataUntilPercent(inputArray: np.ndarray, landslide = 1, noLandslide = 0, percent = 30, noData = -9999, seed = 42) -> np.ndarray:
+
+def fillArrayWithRandomNoDataUntilPercent(
+    inputArray: np.ndarray,
+    landslide=1,
+    noLandslide=0,
+    percent=30,
+    noData=-9999,
+    seed=42,
+) -> np.ndarray:
     """Returns a modified inputArray where noLandslide values are randomly replaced with noData
     until landslide values make up percent % of all elements in inputArray if the percentage of
     landslides is too low, else it randomly replaces landslides with noData until percent % of all
@@ -16,14 +25,18 @@ def fillArrayWithRandomNoDataUntilPercent(inputArray: np.ndarray, landslide = 1,
     nonLsCount = np.count_nonzero(inputArray == noLandslide)
     lsPercent = 100 / (lsCount + nonLsCount) * lsCount
     percentDifference = percent - lsPercent
-    if percentDifference == 0: # precision landing
+    if percentDifference == 0:  # precision landing
         return inputArray
-    elif percentDifference < 0: # too many landslides -> add noData for landslide
+    elif percentDifference < 0:  # too many landslides -> add noData for landslide
         toReplace = landslide
-        elementCountToModify = abs(nonLsCount - int(nonLsCount / ((100-percent) / 100 )) + lsCount)
-    elif percentDifference > 0: # too few landslides  -> add noData for noLandslide
+        elementCountToModify = abs(
+            nonLsCount - int(nonLsCount / ((100 - percent) / 100)) + lsCount
+        )
+    elif percentDifference > 0:  # too few landslides  -> add noData for noLandslide
         toReplace = noLandslide
-        elementCountToModify = abs(lsCount - int(lsCount / (percent / 100 )) + nonLsCount)
+        elementCountToModify = abs(
+            lsCount - int(lsCount / (percent / 100)) + nonLsCount
+        )
     rowCount, colCount = inputArray.shape
     np.random.seed(seed)
     while elementCountToModify:
@@ -34,17 +47,20 @@ def fillArrayWithRandomNoDataUntilPercent(inputArray: np.ndarray, landslide = 1,
             elementCountToModify -= 1
     return inputArray
 
-def fillWithNoDataKeepingValueDistribution(inputArray: np.ndarray, percent = 20, noData = -9999, seed = 42) -> np.ndarray:
+
+def fillWithNoDataKeepingValueDistribution(
+    inputArray: np.ndarray, percent=20, noData=-9999, seed=42
+) -> np.ndarray:
     """Returns a modified inputArray where percent of all values in it are filled with noData, while
     keeping the original percentage distribution of the values or very close to it. It will keep at
     least one of each value in inputArray in the returned array.
     """
-    values, counts = np.unique(inputArray, return_counts = True)
-    if noData in values: # we don't care about noData
+    values, counts = np.unique(inputArray, return_counts=True)
+    if noData in values:  # we don't care about noData
         index = np.where(values == noData)
         values = values[values != noData]
         counts = np.delete(counts, index)
-    afterCounts = (counts * percent/100).astype("int")
+    afterCounts = (counts * percent / 100).astype("int")
     afterCounts[afterCounts == 0] = 1
     toReplace = counts - afterCounts
     indices = []
@@ -63,7 +79,13 @@ def fillWithNoDataKeepingValueDistribution(inputArray: np.ndarray, percent = 20,
             inputArray[x][y] = noData
     return inputArray
 
-def replaceValuesInArray(inputArray: np.ndarray, toReplace: np.ndarray, replacement: np.ndarray, changeType = True) -> np.ndarray:
+
+def replaceValuesInArray(
+    inputArray: np.ndarray,
+    toReplace: np.ndarray,
+    replacement: np.ndarray,
+    changeType=True,
+) -> np.ndarray:
     """
     Returns an array where values in toReplace are replaced with values in replacement with the same index in
     inputArray.
@@ -83,6 +105,9 @@ def replaceValuesInArray(inputArray: np.ndarray, toReplace: np.ndarray, replacem
 if __name__ == "__main__":
     import timeit
     import randomize
-    trainlist, vallist = randomize.getRandomArrays(np.arange(900).reshape(30, 30), 100, noData=899)
+
+    trainlist, vallist = randomize.getRandomArrays(
+        np.arange(900).reshape(30, 30), 100, noData=899
+    )
     for train in trainlist:
         print(timeit.timeit("readyArray4calc(train)", globals=globals()))
