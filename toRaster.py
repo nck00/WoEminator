@@ -1,6 +1,7 @@
 import numpy as np
 from osgeo import gdal
 
+gdal.UseExceptions()
 
 def array2Raster(
     array: np.ndarray,

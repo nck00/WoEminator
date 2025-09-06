@@ -1,6 +1,7 @@
 from osgeo import gdal, ogr
 import numpy as np
 
+gdal.UseExceptions()
 
 def vector2Array(vectorPath: str, maskRasterPath: str, burnField: str, noData=-9999):
     # TODO: Fix losing small polygons (ALL_TOUCHED broken?)
