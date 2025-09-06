@@ -20,11 +20,7 @@ def getTotalCount(rasterArray, noData: int) -> int:
 
 def getClassValues(rasterArray: np.ndarray, noData) -> np.ndarray:
     """Returns a numpy array with unique values in rasterArray, discarding noData"""
-    classValues = np.unique(rasterArray)
-    # we dont care about noData
-    if noData in classValues:
-        classValues = classValues[classValues != noData]
-    return classValues
+    return np.setdiff1d(np.unique(rasterArray), noData)
 
 
 def getClassArray(rasterArray, classValue: float, noData=-9999) -> np.ndarray:
